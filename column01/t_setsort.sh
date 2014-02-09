@@ -1,5 +1,5 @@
 #!/bin/sh
-# qsort performance..
+# set sort performance..
 
-perf stat cat ./random_numbers | ./set_sort > l_qsort
+perf stat cat ./random_numbers | ./set_sort > l_set_sort
 
