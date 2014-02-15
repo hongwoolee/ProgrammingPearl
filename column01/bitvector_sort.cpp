@@ -1,18 +1,21 @@
 #include <stdio.h>
 
 #define SIZEOF_NUMBERS 10000000
+#define BITSPERWORD 32
+#define MASK 0x1F
+#define SHIFT 5
 
-static int Numbers[SIZEOF_NUMBERS/sizeof(int)];
+static int Numbers[SIZEOF_NUMBERS/BITSPERWORD+1];
 
 inline void setNumber(int n) {
-    int index = n/sizeof(int);
-    int bitIndex = n%sizeof(int);
+    int index = n>>SHIFT;
+    int bitIndex = n & MASK;
     Numbers[index] = Numbers[index] | 1 << bitIndex;
 }
 
 inline bool isSet(int n) {
-    int index = n/sizeof(int);
-    int bitIndex = n%sizeof(int);
+    int index = n>>SHIFT;
+    int bitIndex = n & MASK;
     return Numbers[index] & (1 << bitIndex);
 }
 
