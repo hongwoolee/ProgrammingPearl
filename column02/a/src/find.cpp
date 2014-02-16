@@ -10,38 +10,58 @@
 
 using namespace std; 
 
-string divider(string& sourceFile, int mask);
+string divider(string& sourceFile, unsigned int mask, int& size);
+
+int getShiftCount(unsigned int mask) {
+    int shiftcount = -1;
+    for(int i=0; i<16; i++) {
+        if((mask == 0x3 << (i*2))) {
+            shiftcount = i*2;
+            break;
+        }
+    }
+    assert(shiftcount != -1);
+    return shiftcount;
+}
 
 int main(int argc, char** argv) {
-/*    
-    vector< shared_ptr<fstream> > outputs;
-    for(int i=0; i<4; i++) {
-        ostringstream s;
-        s << "out" << i;
-        outputs.push_back( make_shared<fstream>(s.str()) );
+    if(argc < 2) {
+        cout << "invalid input" << endl;
+        return -1;
     }
+    string originInput(argv[1]);
+    int size = 0;
+    unsigned int mask = 0x3 << 30;
+    string input = originInput;
+    string output;
+    do {
+        output = divider(input, mask, size);
+        input = output;
+        mask = mask >> 2;
+        cout << "size: " << size << " mask: " << mask << endl;
+    } while(size > 1024);
 
-    vector<int> lengthList;
-    unsigned int i = 0;
-    while(cin>>i) {
-        int s = (i & 0xC0000000) >> 30;
-        *outputs[s] << i << endl;
-        lengthList[s]++;
+    string bitString = output.substr(originInput.size());
+    int shiftcount = 32 - bitString.size();
+    bitset<32> minimum_bitset(bitString);
+    unsigned int minimum = minimum_bitset.to_ulong() << shiftcount;
+    unsigned int maximum = minimum + ((1 << shiftcount) - 1);
+
+    unsigned int i = 1;
+    ifstream source(output);
+
+    int count = 0;
+    while(source >> i) {
+        if( (minimum + count++) != i) {
+            break;
+        }
     }
-
-    vector<int>::iterator iter = min_element(lengthList.begin(), lengthList.end());
-    fstream* m = outputs[iter];
-    while(m>>i) {
-        int s = (i & 0x30000000) >> 28);
-    }
-*/
-
-    string input(argv[1]);
-    divider(input, 0xC0000000);  
+    
+    cout << "result: " << i << endl;
     return 0;
 }
 
-string divider(string& sourceFile, int mask) {
+string divider(string& sourceFile, unsigned int mask, int& size) {
     vector<int> lengthList;
     vector< shared_ptr<ofstream> > outputs;
     for(int i=0; i<4; i++) {
@@ -53,23 +73,24 @@ string divider(string& sourceFile, int mask) {
     }
 
     unsigned int i = 0;
-    int shiftcount = -1;
-    for(int i=0; i<16; i++) {
-        if((mask == 0x3 << (i*2))) {
-            shiftcount = i*2;
-            break;
-        }
-    }
-    assert(shiftcount != -1);
+    int shiftcount = getShiftCount(mask);
 
     ifstream source(sourceFile);
     while(source>>i) {
         int s = (i & mask) >> shiftcount;
+        if(s > 3) {
+            cout << "weird" << endl;
+        }
         *outputs[s] << i << endl;
         lengthList[s]++;
     }
     vector<int>::iterator iter = min_element(lengthList.begin(), lengthList.end());
     bitset<2> b(distance(lengthList.begin(), iter));
 
+    for(int i=0; i<4; i++) {
+        (*outputs[i]).flush();
+        (*outputs[i]).close();
+    }
+    size = *iter;
     return sourceFile + b.to_string();
 }
