@@ -50,15 +50,20 @@ int main(int argc, char** argv) {
     unsigned int i = 1;
     ifstream source(output);
 
-    // 선택된 파일을 정렬하는 코드가 추가되어야 함!! 
-    int count = 0;
+    vector<int> intArray;
     while(source >> i) {
-        if( (minimum + count++) != i) {
+        intArray.push_back(i);
+    }
+    sort(intArray.begin(), intArray.end());
+
+    int count = 0;
+    for(vector<int>::iterator it = intArray.begin(); it != intArray.end(); it++) {
+        if( (minimum + count) != *it) {
             break;
         }
+        count++;
     }
-    
-    cout << "result: " << i << endl;
+    cout << "result: " << minimum + count << endl;
     return 0;
 }
 
