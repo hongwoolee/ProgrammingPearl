@@ -50,6 +50,7 @@ int main(int argc, char** argv) {
     unsigned int i = 1;
     ifstream source(output);
 
+    // 선택된 파일을 정렬하는 코드가 추가되어야 함!! 
     int count = 0;
     while(source >> i) {
         if( (minimum + count++) != i) {
