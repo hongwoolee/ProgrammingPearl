@@ -96,9 +96,13 @@ int main(int argc, char** argv) {
     
     rotateFunc(arr, rotateCount);
 
+/*
     for(intVector_it i=arr.begin(); i != arr.end() ; i++) {
         cout<<*i<<endl;
     }
+*/
+    
+    cout << arr[arraySize - 1] << endl;
 
     return 0;
 }
